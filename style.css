@@ -1,0 +1,23 @@
+body {
+    max-width: max-content;
+    margin: auto;
+}
+
+
+#lab5-top, #lab5-bottom {
+    display: flex;
+    justify-content: center;
+}
+
+.plot {
+    margin-right: 2em;
+}
+
+.navbar {
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+/* .plot {
+    display: none;
+} */

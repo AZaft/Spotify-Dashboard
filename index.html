@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Spotify Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+   
+  <div class="navbar">
+
+
+    <h1>  Top 50 Spotify Songs of the Decade </h1>
+    <label for="variable">Choose the attribute:</label> 
+    <select name="variable" id="variable">
+      <!-- 'BPM', 'Energy', 'Danceability', 'Loudness', 'Liveness', 'Valence', 'Duration', 'Acousticness' -->>
+      <option value="BPM"> BPM </option>
+      <option value="Energy"> Energy </option>
+      <option value="Danceability"> Danceability </option>
+      <option value="Loudness"> Loudness </option>
+      <option value="Liveness"> Liveness </option>
+      <option value="Valence"> Valence </option>
+      <option value="Duration"> Duration </option>
+      <option value="Acousticness"> Acousticness </option>
+    </select>
+    <br><br>
+  </div>
+
+
+    <div id="lab5-top">
+      <div class="plot" id="histogram"> </div>
+
+      <div class="plot" id="parallel-coordinates"> </div>
+    </div>
+
+    <label for="years">Choose a year:</label>
+      <select name="years" id="years">
+        <option value="2010">2010</option>
+        <option value="2011">2011</option>
+        <option value="2012">2012</option>
+        <option value="2013">2013</option>
+        <option value="2014">2014</option>
+        <option value="2015">2015</option>
+        <option value="2016">2016</option>
+        <option value="2017">2017</option>
+        <option value="2018">2018</option>
+        <option value="2019">2019</option>
+        <option value="2020">2020</option>
+      </select>
+
+      <div id="lab5-bottom">
+        <div class="plot" id="piechart"> </div>
+      </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js" ></script>
+    <script type="module" src="index.js"></script>
+  </body>
+</html>
