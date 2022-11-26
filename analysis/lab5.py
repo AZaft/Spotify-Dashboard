@@ -81,8 +81,7 @@ def histogram():
 def data():
     args = request.args
     maxes = {}
-    trimmeddf = spotifydf.applymap(lambda x: x.replace(' ', '') if type(x)==str else x)
-    
+    trimmeddf = spotifydf.applymap(lambda x: x.replace(' ', '-') if type(x)==str else x)
     if(args.get("year") == "all"):
         filter = ["year"]
         filterData = trimmeddf.loc[trimmeddf['Year'] == int(args.get("filter"))][['Genre']].value_counts().to_dict()
@@ -117,7 +116,7 @@ def data():
         return data
     else: 
         data = spotifydf.loc[spotifydf['Year'] == int(args.get("year"))][['Genre']].value_counts().nlargest(5)
-    print(data)
+       
     return data.to_json()
 
 def get_correlations():

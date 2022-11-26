@@ -1,6 +1,8 @@
 body {
     max-width: max-content;
     margin: auto;
+    background-color: #1f1f23;
+    color: #c3c3c8;
 }
 
 
@@ -14,14 +16,17 @@ body {
     margin-left: 2em;
 }
 
-.plot2 {
-    margin-right: 4em;
-    margin-left: 4em;
+#piechart {
+    margin-top: 1.5em;
+    margin-left: 13em;
+}
+
+#areachart {
+    margin-left: 9em;
 }
 
 .navbar {
     text-align: center;
-    margin-bottom: 1em;
 }
 
 /* .plot {

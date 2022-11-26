@@ -31,14 +31,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     drawTopPlots();
     let res = await axios.get("http://127.0.0.1:5000/lab5/genre-frequency?year=2010");
     createPieChart('piechart', res.data, 2010,  "Popularity", "Title");
-    //console.log(res.data);
     
     res = await axios.get("http://127.0.0.1:5000/lab5/genre-frequency?year=all&filter=2010");
     let genreData = res.data;
     let columns = genreData[11]
     genreData = genreData.slice(0,11)
     genreData.columns = columns
-    console.log(genreData)
 
     createAreaChart('areachart', genreData, '2010')
 
@@ -57,14 +55,6 @@ let changeColor = function(d){
     this.style = `fill: ${clickedColor};`
 
 
-    console.log(clickedBin);
-    for(let i = 0; i < clickedBin.length;i++){
-        console.log(clickedBin[i])
-    }
-    console.log(clickedColor);
-    console.log(currentVariable);
-
-
     let parallelPlotLines = d3.select(`#parallel-coordinates`)
         .selectAll("path")
         ._groups[0]
@@ -79,13 +69,26 @@ let changeColor = function(d){
     }
 }
 
+let resetColor = function(d){
+    clickedColor = 'green';
+    this.style = `fill: ${clickedColor};`
+    let parallelPlotLines = d3.select(`#parallel-coordinates`)
+        .selectAll("path")
+        ._groups[0]
+
+    let bins = d3.select(`#histogram`)
+        .selectAll("rect")
+        .style("fill", "green")
+    for(let i = 0; i < parallelPlotLines.length;i++){
+        let line = parallelPlotLines[i];
+        line.style = `fill: none; stroke: ${clickedColor}; opacity: 0.5;`
+    }
+}
 
 function createHistogram(div, data, var1){
     let numVariables = 10;
-    
-    console.log(data)
-    
-    let margin = {top: 20, right: 20, bottom: 125, left: 50},
+
+    let margin = {top: 50, right: 20, bottom: 50, left: 50},
         width = 500 - margin.left - margin.right,
         height = 400 - margin.top - margin.bottom;
 
@@ -93,6 +96,7 @@ function createHistogram(div, data, var1){
     .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
+        .on("dblclick", resetColor)
     .append("g")
         .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")");
@@ -115,9 +119,6 @@ function createHistogram(div, data, var1){
 
     let bins = histogram(data);
 
-    console.log(bins)
-
-    
     let y = d3.scaleLinear()
     .range([height, 0]);
     y.domain([0, d3.max(bins, function(d) { return d.length; })]);  
@@ -141,19 +142,22 @@ function createHistogram(div, data, var1){
         .attr("y", 5 - (margin.top / 2))
         .attr("text-anchor", "middle")  
         .style("font-size", "16px") 
+        .style("fill", "#c3c3c8")
         .text("Song Features Histogram");
 
     let yAxis = svg.append("text")
         .attr("text-anchor", "middle")  
         .attr("transform", `translate(${-10-(margin.left/2)},${(height/2)})rotate(-90)`)
-        .style("font-size", "16px") 
+        .style("font-size", "16px")
+        .style("fill", "#c3c3c8") 
         .text("Frequency");
 
     let xAxis = svg.append("text")
         .attr("x", (width / 2))             
-        .attr("y", height + margin.top + 10)
+        .attr("y", height + margin.top - 15)
         .attr("text-anchor", "middle")  
-        .style("font-size", "16px") 
+        .style("font-size", "16px")
+        .style("fill", "#c3c3c8") 
         .text(var1);
 
 }
@@ -173,29 +177,28 @@ const ranges = {
 
 function createParallelPlot(div, dimensions){
     // set the dimensions and margins of the graph
-    let margin = {top: 20, right: 20, bottom: 125, left: 50},
-    width = 600 - margin.left - margin.right,
+    let margin = {top: 50, right: 20, bottom: 50, left: 50},
+    width = 800 - margin.left - margin.right,
     height = 400 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     let svg = d3.select(`#${div}`)
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
 
     svg.append("text")
         .attr("x", (width / 2))             
         .attr("y", -10 - (margin.top / 2))
         .attr("text-anchor", "middle")  
         .style("font-size", "16px") 
+        .style("fill", "#c3c3c8")
         .text("Features Parrallel Coordinates Plot");
 
     d3.csv("spotifiy2010-2021.csv").then( function(data) {
-        
-        console.log(dimensions)
 
         let y = {}
         for (let i = 0; i < dimensions.length;i++) {
@@ -204,8 +207,6 @@ function createParallelPlot(div, dimensions){
             .domain( d3.extent(data, function(d) { return +d[name]; }) )
             .range([height, 0])
         }
-
-        console.log(y)
 
         let x = d3.scalePoint()
             .range([0, width])
@@ -240,7 +241,7 @@ function createParallelPlot(div, dimensions){
             .style("text-anchor", "middle")
             .attr("y", -9)
             .text(function(d) { return d; })
-            .style("fill", "black")
+            .style("fill", "#c3c3c8")
         
         function hideLines(event, p){
             let selection = event.selection;
@@ -258,12 +259,13 @@ function createParallelPlot(div, dimensions){
 
 
 function createPieChart(div, data, year, var1, var2){
+    console.log(data)
     //how many variables to show
     let newData = data;
     let var1Array = {};
     
-    let width = 500,
-        height = 300,
+    let width = 550,
+        height = 375,
         radius = Math.min(width, height) / 2.5,
 
     svg = d3.select(`#${div}`)
@@ -287,17 +289,24 @@ function createPieChart(div, data, year, var1, var2){
         .attr("x", 0)             
         .attr("y", -10 - (radius))
         .attr("text-anchor", "middle")  
-        .style("font-size", "16px") 
+        .style("font-size", "16px")
+        .style("fill", "#c3c3c8") 
         .text(`Top Genres of ${year}`);
 
     let labels = "";
     let legend = "";
+    let highlight = function(e, d){
+        let genre = Object.keys(var1Array).find(key => var1Array[key] ===d.value).replace(/[()',]/g, "").replaceAll(" ", "-")
+        console.log(genre)
+        d3.selectAll(".myArea").style("opacity", .1)
+        d3.select("."+CSS.escape(genre)).style("opacity", 1)
+    }
+
+    let noHighlight = function(d){
+        d3.selectAll(".myArea").style("opacity", 1)
+    }
 
     updateChart()
-    // document.getElementById('variable').addEventListener("change", function(event) {
-    //     var1 = event.target.value;
-    //     updateChart();
-    // });
 
     document.getElementById('years').addEventListener("change", async function(event) {
         year = event.target.value;
@@ -315,6 +324,7 @@ function createPieChart(div, data, year, var1, var2){
         console.log(genreData)
         createAreaChart('areachart', genreData, year)
     });
+
 
     function updateChart(){
         var1Array = {};
@@ -345,12 +355,14 @@ function createPieChart(div, data, year, var1, var2){
             .join('path')
             .attr('fill', function(d, i){ return(color(i)) })
             .attr('d', arc)
-        
+            .on("mouseover", highlight)
+            .on("mouseleave", noHighlight)
+            
         if(labels) labels.remove()
         labels = svg.selectAll("labels")
             .data(pie(Object.values(var1Array)))
             .enter().append("g")
-            .attr("class", "labels");
+            .attr("class", "labels")
         
         labels
             .append('text')
@@ -367,24 +379,27 @@ function createPieChart(div, data, year, var1, var2){
             .data(pie(Object.values(var1Array)))
             .enter().append("g")
             .attr("transform", function(d,i){
-                return "translate(" + (width/3 - 40) + "," + (i*12 - height/2 + 30 ) + ")"; 
+                return "translate(" + (width/3 - 35) + "," + (i*20 - height/2 + 30 ) + ")"; 
               })
             .attr("class", "legend");
 
         legend.append("rect") 
-            .attr("width", 8)
-            .attr("height", 8)
+            .attr("width", 15)
+            .attr("height", 15)
             .attr("fill", function(d, i) {
               return color(i);
             });
+            
 
         legend.append("text") // add the text
             .text(function(d){
-              return Object.keys(var1Array).find(key => var1Array[key] === d.data)
+              let genre = Object.keys(var1Array).find(key => var1Array[key] === d.data)
+              return genre.replace(/[()',]/g, "")
             })
-            .style("font-size", 10)
-            .attr("y", 8)
-            .attr("x", 10);
+            .style("font-size", 15)
+            .style("fill", "#c3c3c8")
+            .attr("y", 12)
+            .attr("x", 18);
 
         title
             .text(`Top Genres of ${year}`);
@@ -398,194 +413,151 @@ function trimByYear(year, data, size){
 }
 
 function createAreaChart(div, data, year, genre){
-    // set the dimensions and margins of the graph
-    let margin = {top: 60, right: 230, bottom: 50, left: 50},
-    width = 660 - margin.left - margin.right,
+
+    let margin = {top: 60, right: 375, bottom: 50, left: 50},
+    width = 850 - margin.left - margin.right,
     height = 400 - margin.top - margin.bottom;
 
-    // append the svg object to the body of the page
     let svg = d3.select(`#${div}`)
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform",
-        "translate(" + margin.left + "," + margin.top + ")");
-
-    console.log(data)
-    
-    //////////
-    // GENERAL //
-    //////////
-
-    // List of groups = header of the csv files
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
     let keys = data.columns.slice(1)
 
-    // color palette
+    //same color pallete as pie chart
     let color = d3.scaleOrdinal()
-    .domain(keys)
-    .range(['darkgreen','#99de31','#32a83c','#d8de2c', '#32a885'].reverse());
+        .domain(keys)
+        .range(['darkgreen','#99de31','#32a83c','#d8de2c', '#32a885'].reverse());
 
-    //stack the data?
+    //stack the data
     let stackedData = d3.stack()
-    .keys(keys)
-    (data)
+        .keys(keys)
+        (data)
 
-
-
-    //////////
-    // AXIS //
-    //////////
-
-    // Add X axis
+    //x axis
     let x = d3.scaleLinear()
-    .domain(d3.extent(data, function(d) { return d.year; }))
-    .range([ 0, width ]);
+        .domain(d3.extent(data, function(d) { return d.year; }))
+        .range([ 0, width ]);
     let xAxis = svg.append("g")
-    .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(x).ticks(5))
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).ticks(5))
 
-    // Add X axis label:
+    //x label
     svg.append("text")
-    .attr("text-anchor", "end")
-    .attr("x", width)
-    .attr("y", height+35 )
-    .text("Time (year)");
+        .attr("text-anchor", "end")
+        .attr("x", width)
+        .attr("y", height+35 )
+        .style("fill", "#c3c3c8")
+        .text("Time (year)");
 
-    // Add Y axis label:
+    //y label
     svg.append("text")
-    .attr("text-anchor", "end")
-    .attr("x", 0)
-    .attr("y", -10 )
-    .text(`Top 5 genres in ${year}`)
-    .attr("text-anchor", "start")
+        .attr("text-anchor", "end")
+        .attr("x", 0)
+        .attr("y", -10 )
+        .style("fill", "#c3c3c8")
+        .text(`Top 5 Genres across 2010-2020`)
+        .attr("text-anchor", "start")
 
-    // Add Y axis
+    //y axis
     let y = d3.scaleLinear()
-    .domain([0, 100])
-    .range([ height, 0 ]);
-    svg.append("g")
-    .call(d3.axisLeft(y).ticks(4))
+        .domain([0, 80])
+        .range([ height, 0 ]);
+        svg.append("g")
+        .call(d3.axisLeft(y).ticks(4))
 
-
-
-    //////////
-    // BRUSHING AND CHART //
-    //////////
-
-    // Add a clipPath: everything out of this area won't be drawn.
     let clip = svg.append("defs").append("svg:clipPath")
-    .attr("id", "clip")
-    .append("svg:rect")
-    .attr("width", width )
-    .attr("height", height )
-    .attr("x", 0)
-    .attr("y", 0);
+        .attr("id", "clip")
+        .append("svg:rect")
+        .attr("width", width )
+        .attr("height", height )
+        .attr("x", 0)
+        .attr("y", 0);
 
-    // Add brushing
-    let brush = d3.brushX()                 // Add the brush feature using the d3.brush function
-    .extent( [ [0,0], [width,height] ] ) // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
-    .on("end", updateChart) // Each time the brush selection changes, trigger the 'updateChart' function
+    //brushing
+    let brush = d3.brushX()                 
+        .extent( [ [0,0], [width,height] ] )
+        .on("end", updateChart) 
 
-    // Create the scatter variable: where both the circles and the brush take place
     let areaChart = svg.append('g')
-    .attr("clip-path", "url(#clip)")
+        .attr("clip-path", "url(#clip)")
 
-    // Area generator
     let area = d3.area()
-    .x(function(d) { return x(d.data.year); })
-    .y0(function(d) { return y(d[0]); })
-    .y1(function(d) { return y(d[1]); })
+        .x(function(d) { return x(d.data.year); })
+        .y0(function(d) { return y(d[0]); })
+        .y1(function(d) { return y(d[1]); })
 
-    // Show the areas
     areaChart
-    .selectAll("mylayers")
-    .data(stackedData)
-    .enter()
-    .append("path")
-    .attr("class", function(d) { return "myArea " + d.key })
-    .style("fill", function(d) { return color(d.key); })
-    .attr("d", area)
+        .selectAll("mylayers")
+        .data(stackedData)
+        .enter()
+        .append("path")
+        .attr("class", function(d) { return "myArea " + d.key })
+        .style("fill", function(d) { return color(d.key); })
+        .attr("d", area)
 
-    // Add the brushing
+    //brushing
     areaChart
-    .append("g")
-    .attr("class", "brush")
-    .call(brush);
+        .append("g")
+        .attr("class", "brush")
+        .call(brush);
 
     let idleTimeout
     function idled() { idleTimeout = null; }
 
-    // A function that update the chart for given boundaries
     function updateChart(event) {
-
         let extent = event.selection
-
-        // If no selection, back to initial coordinate. Otherwise, update X axis domain
         if(!extent){
-        if (!idleTimeout) return idleTimeout = setTimeout(idled, 350); // This allows to wait a little bit
+        if (!idleTimeout) return idleTimeout = setTimeout(idled, 300); 
             x.domain(d3.extent(data, function(d) { return d.year; }))
         }else{
             x.domain([ x.invert(extent[0]), x.invert(extent[1]) ])
-            areaChart.select(".brush").call(brush.move, null) // This remove the grey brush area as soon as the selection has been done
+            areaChart.select(".brush").call(brush.move, null)
         }
 
-        // Update axis and area position
         xAxis.transition().duration(1000).call(d3.axisBottom(x).ticks(5))
         areaChart
-        .selectAll("path")
-        .transition().duration(1000)
-        .attr("d", area)
+            .selectAll("path")
+            .transition().duration(1000)
+            .attr("d", area)
     }
 
-
-
-    //////////
-    // HIGHLIGHT GROUP //
-    //////////
-
-    // What to do when one group is hovered
     let highlight = function(e, d){
-        // reduce opacity of all groups
         d3.selectAll(".myArea").style("opacity", .1)
-        // expect the one that is hovered
-        d3.select("."+d).style("opacity", 1)
+        d3.select("."+CSS.escape(d)).style("opacity", 1)
     }
 
-    // And when it is not hovered anymore
     let noHighlight = function(d){
         d3.selectAll(".myArea").style("opacity", 1)
     }
 
-    //////////
-    // LEGEND //
-    //////////
-
-    // Add one dot in the legend for each name.
-    let size = 20
+    // area chart legend
+    let size = 15
     svg.selectAll("myrect")
-    .data(keys)
-    .enter()
-    .append("rect")
-        .attr("x", 400)
-        .attr("y", function(d,i){ return 10 + i*(size+5)}) // 100 is where the first dot appears. 25 is the distance between dots
-        .attr("width", size)
-        .attr("height", size)
-        .style("fill", function(d){ return color(d)})
-        .on("mouseover", highlight)
-        .on("mouseleave", noHighlight)
+        .data(keys)
+        .enter()
+        .append("rect")
+            .attr("x", 400)
+            .attr("y", function(d,i){ return 10 + i*(size+5)}) 
+            .attr("width", size)
+            .attr("height", size)
+            .style("fill", function(d){ return color(d)})
+            .on("mouseover", highlight)
+            .on("mouseleave", noHighlight)
 
-    // Add one dot in the legend for each name.
     svg.selectAll("mylabels")
-    .data(keys)
-    .enter()
-    .append("text")
-        .attr("x", 400 + size*1.2)
-        .attr("y", function(d,i){ return 10 + i*(size+5) + (size/2)}) // 100 is where the first dot appears. 25 is the distance between dots
-        .style("fill", function(d){ return color(d)})
-        .text(function(d){ return d})
-        .attr("text-anchor", "left")
-        .style("alignment-baseline", "middle")
-        .on("mouseover", highlight)
-        .on("mouseleave", noHighlight)
+        .data(keys)
+        .enter()
+        .append("text")
+            .attr("x", 400 + size*1.2)
+            .attr("y", function(d,i){ return 10 + i*(size+5) + (size/2)}) 
+            .style("fill", function(d){ return color(d)})
+            .text(function(d){ return d})
+            .attr("text-anchor", "left")
+            .style("alignment-baseline", "middle")
+            .on("mouseover", highlight)
+            .on("mouseleave", noHighlight)
 }
