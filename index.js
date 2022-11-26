@@ -68,14 +68,11 @@ let changeColor = function(d){
     let parallelPlotLines = d3.select(`#parallel-coordinates`)
         .selectAll("path")
         ._groups[0]
-
     for(let i = 0; i < parallelPlotLines.length;i++){
         let line = parallelPlotLines[i];
         let lineData = line.__data__
-
         for(let j = 0; j < clickedBin.length;j++){
             if(lineData && (lineData[currentVariable]) == clickedBin[j]){
-                
                 line.style = `fill: none; stroke: ${clickedColor}; opacity: 0.5;`
             }
         }
@@ -220,7 +217,7 @@ function createParallelPlot(div, dimensions){
         }
 
         // Draw the lines
-        svg
+        let lines = svg
             .selectAll("path")
             .data(data)
             .enter().append("path")
@@ -229,17 +226,33 @@ function createParallelPlot(div, dimensions){
             .style("stroke", "green")
             .style("opacity", 0.5)
 
-    
-        svg.selectAll("axis")
+        let axis = svg.selectAll("axis")
             .data(dimensions).enter()
-            .append("g")
+            
+        let g = axis.append("g")
             .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
             .each(function(d) { d3.select(this).call(d3.axisLeft().scale(y[d])); })
+            .call( d3.brushY()                     
+                .extent( [ [-15,-15], [15,height] ] )
+                .on("start brush", hideLines) 
+            )
             .append("text")
             .style("text-anchor", "middle")
             .attr("y", -9)
             .text(function(d) { return d; })
             .style("fill", "black")
+        
+        function hideLines(event, p){
+            let selection = event.selection;
+            lines.style("display", function(d){
+                let lineDimensions = [x(p), y[p](d[p])]
+                if(selection[0] == selection[1]) return null
+                if(lineDimensions[1] < selection[0] || lineDimensions[1] > selection[1]){
+                    return "none";
+                }
+                return null;
+            })
+        }
     })
 }
 
