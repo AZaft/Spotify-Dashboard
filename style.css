@@ -11,6 +11,12 @@ body {
 
 .plot {
     margin-right: 2em;
+    margin-left: 2em;
+}
+
+.plot2 {
+    margin-right: 4em;
+    margin-left: 4em;
 }
 
 .navbar {

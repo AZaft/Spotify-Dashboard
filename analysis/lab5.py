@@ -7,6 +7,7 @@ from sklearn.manifold import MDS
 from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
+import random
 
 import json
 
@@ -79,9 +80,43 @@ def histogram():
 @app.route("/lab5/genre-frequency")
 def data():
     args = request.args
-    data = spotifydf.loc[spotifydf['Year'] == int(args.get("year"))][['Genre']].value_counts()
+    maxes = {}
+    trimmeddf = spotifydf.applymap(lambda x: x.replace(' ', '') if type(x)==str else x)
+    
+    if(args.get("year") == "all"):
+        filter = ["year"]
+        filterData = trimmeddf.loc[trimmeddf['Year'] == int(args.get("filter"))][['Genre']].value_counts().to_dict()
+        for key in filterData:
+            if(len(filter) < 6): filter.append(key[0])
+        data = []
 
+        for i in range(0,11):
+            year = f'201{i}'
+            if i == 10: year = '2020'
+            y = trimmeddf.loc[trimmeddf['Year'] == int(year)][['Genre']].value_counts().to_dict()
+            newData = {}
+            newData['year'] = year
+            for key in y:
+                g = key[0]
+                if g in filter:
+                    val = y[key] + random.random()
+                    newData[g] = val
+                    if g not in maxes:
+                        maxes[g] = val
+                    elif maxes[g] < val:
+                        maxes[g] = val
 
+                for f in filter:
+                    if f not in newData:
+                        newData[f] = 0 + random.random()
+
+            data.append(newData)
+        columns = ["year"] + list(dict(sorted(maxes.items(), key=lambda item: item[1])).keys())
+        print(columns)
+        data.append(columns)
+        return data
+    else: 
+        data = spotifydf.loc[spotifydf['Year'] == int(args.get("year"))][['Genre']].value_counts().nlargest(5)
     print(data)
     return data.to_json()
 

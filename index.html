@@ -10,8 +10,6 @@
   <body>
    
   <div class="navbar">
-
-
     <h1>  Top 50 Spotify Songs of the Decade </h1>
     <label for="variable">Choose the attribute:</label> 
     <select name="variable" id="variable">
@@ -28,13 +26,12 @@
     <br><br>
   </div>
 
+  <div id="lab5-top">
+    <div class="plot" id="histogram"> </div>
+    <div class="plot" id="parallel-coordinates"> </div>
+  </div>
 
-    <div id="lab5-top">
-      <div class="plot" id="histogram"> </div>
-
-      <div class="plot" id="parallel-coordinates"> </div>
-    </div>
-
+  <div class="navbar">
     <label for="years">Choose a year:</label>
       <select name="years" id="years">
         <option value="2010">2010</option>
@@ -49,10 +46,12 @@
         <option value="2019">2019</option>
         <option value="2020">2020</option>
       </select>
+  </div>
 
-      <div id="lab5-bottom">
-        <div class="plot" id="piechart"> </div>
-      </div>
+    <div id="lab5-bottom">
+      <div class="plot2" id="piechart"> </div>
+      <div class="plot2" id="areachart"> </div>
+    </div>
 
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://d3js.org/d3.v7.min.js" ></script>
