@@ -7,9 +7,6 @@ from sklearn.manifold import MDS
 from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
-import random
-
-import json
 
 spotifydf = p.read_csv('../spotifiy2010-2021.csv')
 
@@ -98,7 +95,7 @@ def data():
             for key in y:
                 g = key[0]
                 if g in filter:
-                    val = y[key] + random.random()
+                    val = y[key]
                     newData[g] = val
                     if g not in maxes:
                         maxes[g] = val
@@ -107,7 +104,7 @@ def data():
 
                 for f in filter:
                     if f not in newData:
-                        newData[f] = 0 + random.random()
+                        newData[f] = 0
 
             data.append(newData)
         columns = ["year"] + list(dict(sorted(maxes.items(), key=lambda item: item[1])).keys())
